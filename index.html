@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Base64 Image</title>
+</head>
+<body>
+
+<div id="imageContainer"></div>
+
+<script>
+    // Hàm đọc file và hiển thị hình ảnh
+    function displayBase64Image() {
+        // Đường dẫn của file part.txt
+        const filePath = 'text/part_0_0.txt';
+
+        // Sử dụng XMLHttpRequest để đọc nội dung của file
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', filePath, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const base64String = xhr.responseText;
+
+                // Hiển thị hình ảnh trong thẻ <img>
+                const imageContainer = document.getElementById('imageContainer');
+                const img = document.createElement('img');
+                img.src = base64String;
+                img.alt = 'Base64 Image';
+                imageContainer.appendChild(img);
+            }
+        };
+        xhr.send();
+    }
+
+    // Gọi hàm để hiển thị hình ảnh khi trang được tải
+    displayBase64Image();
+</script>
+
+</body>
+</html>
