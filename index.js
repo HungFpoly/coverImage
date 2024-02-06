@@ -1,47 +1,40 @@
 const fs = require('fs');
-const sharp = require('sharp');
-// Kích thước của từng phần nhỏ
-const partWidth = 4816;
-const partHeight = 3072;
-async function textToImage(inputFolder, outputImagePath, partWidth, partHeight) {
-    const partFiles = fs.readdirSync(inputFolder);
-  
-    if (partFiles.length === 0) {
-      console.error('No part files found.');
-      return;
-    }
-    
-    // Chuyển đổi từng file văn bản thành ảnh và lưu vào mảng
-    const images = await Promise.all(partFiles.map(async (partFile) => {
-      const base64Data = fs.readFileSync(`${inputFolder}/${partFile}`, 'utf-8');
-      const buffer = Buffer.from(base64Data, 'base64');
-      return sharp(buffer);
-    }));
-  
-    const firstImageMetadata = await images[0].metadata();
-  
-    // Gộp ảnh
-    const mergedImage = await sharp({
-      create: {
-        width: partWidth * Math.ceil(firstImageMetadata.width / partWidth),
-        height: partHeight * Math.ceil(firstImageMetadata.height / partHeight),
-        channels: 4, // Số kênh màu (4 cho RGBA)
-        background: { r: 255, g: 255, b: 255, alpha: 1 } // Màu nền
-      }
+const express = require('express');
+const { createCanvas, loadImage } = require('canvas');
+
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+    const imageUrl = 'image/test.jpg'; // Thay thế đường dẫn bằng hình ảnh thực tế
+    const rows = 6;
+    const cols = 12;
+
+    loadImage(imageUrl).then((img) => {
+        const tileWidth = img.width / cols;
+        const tileHeight = img.height / rows;
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const canvas = createCanvas(tileWidth, tileHeight);
+                const context = canvas.getContext('2d');
+
+                const sx = col * tileWidth;
+                const sy = row * tileHeight;
+
+                context.drawImage(img, sx, sy, tileWidth, tileHeight, 0, 0, tileWidth, tileHeight);
+
+                // Lưu file vào thư mục với định dạng JPEG và chất lượng cao
+                const buffer = canvas.toBuffer('image/jpeg', { quality: 1 });
+                const fileName = `output/slice_${row}_${col}.jpg`;
+                fs.writeFileSync(fileName, buffer);
+            }
+        }
+
+        res.send('Images sliced and saved!');
     });
-  
-    // Sử dụng phương thức composite để gộp ảnh
-    for (const image of images) {
-      mergedImage.composite([{ input: await image.toBuffer(), left: 0, top: 0 }]);
-    }
-  
-    // Ghi ảnh gộp vào file với định dạng PNG
-    await mergedImage.toFormat('png').toFile(outputImagePath);
-    console.log('Text to image conversion completed.');
-}
-  
-  // Gọi hàm chuyển đổi
-  textToImage('text', 'output.png', partWidth, partHeight)
-    .then(() => console.log('Conversion completed successfully'))
-    .catch((error) => console.error('Error:', error));
-  
+});
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});

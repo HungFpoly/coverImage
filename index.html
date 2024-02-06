@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Base64 Image</title>
 </head>
+
 <body>
 
-<div id="imageContainer"></div>
+    <div id="imageContainer"></div>
 
-<script>
-    // Hàm đọc file và hiển thị hình ảnh
-    function displayBase64Image() {
-        // Đường dẫn của file part.txt
-        const filePath = 'text/part_0_0.txt';
+    <script>
+        // Hàm đọc file và hiển thị hình ảnh
+        let dataBase64 = [];
+        async function displayBase64Image(folderName) {
+            // Đường dẫn của file part.txt
+            for (let partIndex = 1; partIndex <= 10; partIndex++) {
+                // Đường dẫn của file part.txt
+                const filePath = `text/${folderName}_part${partIndex}.txt`;
 
-        // Sử dụng XMLHttpRequest để đọc nội dung của file
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', filePath, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const base64String = xhr.responseText;
+                const response = await fetch(filePath);
 
-                // Hiển thị hình ảnh trong thẻ <img>
-                const imageContainer = document.getElementById('imageContainer');
-                const img = document.createElement('img');
-                img.src = base64String;
-                img.alt = 'Base64 Image';
-                imageContainer.appendChild(img);
+                if (response.ok) {
+                    const partContent = await response.text();
+                    dataBase64.push(partContent);
+                } else {
+                    console.error(`Failed to fetch ${filePath}`);
+                }
             }
-        };
-        xhr.send();
-    }
+            // Hiển thị hình ảnh trong thẻ <img>
+            const imageContainer = document.getElementById('imageContainer');
+            const img = document.createElement('img');
+            img.src = dataBase64.join('');
+            img.alt = 'Base64 Image';
+            imageContainer.appendChild(img);
+        }
 
-    // Gọi hàm để hiển thị hình ảnh khi trang được tải
-    displayBase64Image();
-</script>
+        // Gọi hàm để hiển thị hình ảnh khi trang được tải
+        displayBase64Image('1');
+    </script>
 
 </body>
+
 </html>

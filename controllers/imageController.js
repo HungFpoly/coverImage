@@ -5,8 +5,18 @@ const db = require('../db/db');
 async function imageToText(inputImagePath, outputFolder, customFileName) {
     // ... (phần code chuyển đổi từ trước)
     // Kích thước của từng phần nhỏ
-    const partWidth = 4816;
-    const partHeight = 3072;
+    // const partWidth = 4816;
+    // const partHeight = 3072;
+    // const partWidth = 2600;
+    // const partHeight = 3184;
+    // const partWidth = 5760;
+    // const partHeight = 3336;
+    // const partWidth = 4242;
+    // const partHeight = 2456;
+    // const partWidth = 5372;
+    // const partHeight = 2824;
+    const partWidth = 8192;
+    const partHeight = 4096;
     // Zoom factor
     const zoom = 1.0;
     // Đọc ảnh và chuyển đổi thành các phần nhỏ
@@ -53,10 +63,16 @@ async function imageToText(inputImagePath, outputFolder, customFileName) {
                 .toBuffer();
 
             const base64String = 'data:image/jpeg;base64,' + Buffer.from(extractedBuffer).toString('base64');
-            const partFileName = `${outputFolder}/${customFileName}.txt`;
-            console.log(customFileName);
-            fs.writeFileSync(partFileName, base64String);
-            console.log('Đã ghi file:', partFileName);
+            for (let partIndex = 0; partIndex < 10; partIndex++) {
+                const partBase64String = base64String.substring(
+                    partIndex * (base64String.length / 10),
+                    (partIndex + 1) * (base64String.length / 10)
+                );
+            
+                const partFileName = `${outputFolder}/${customFileName}_part${partIndex + 1}.txt`;
+                fs.writeFileSync(partFileName, partBase64String);
+                console.log('Đã ghi file:', partFileName);
+            }
         }
     }
     console.log('Image to text conversion completed.');

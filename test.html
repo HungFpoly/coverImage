@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconstructed Image</title>
+    <style>
+        #reconstructedImage {
+            width: 100%; /* Điều chỉnh kích thước tùy thuộc vào kích thước hình ảnh gốc */
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .imageSlice {
+            width: 100%; /* Kích thước 100% để nó đầy đủ chiều rộng của container */
+            height: auto; /* Tự động tính chiều cao để giữ tỷ lệ khung hình */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+<!-- Hiển thị hình ảnh đã ghép -->
+<h2>Reconstructed Image</h2>
+
+<div id="reconstructedImage"></div>
+
+<script>
+    function reconstructImage(rows, cols) {
+        var imageContainer = document.getElementById("reconstructedImage");
+
+        // Tạo một hình ảnh và đặt kích thước của container
+        var img = new Image();
+        // img.src = 'path_to_large_image.jpg'; // Thay đổi đường dẫn tùy thuộc vào hình ảnh gốc
+        img.className = "imageSlice";
+        console.log(img.className);
+
+        // Tính kích thước của mỗi phần nhỏ
+        
+        var partWidth = 6000 / cols;
+        var partHeight = 3000 / rows;
+
+        // Đặt kích thước của container bằng kích thước của hình ảnh gốc
+        imageContainer.style.width = 6000 + "px";
+        imageContainer.style.height = 3000 + "px";
+
+        // Đặt hình ảnh gốc làm nền
+        imageContainer.style.backgroundImage = `url(${img.src})`;
+        imageContainer.style.backgroundSize = 'cover';
+
+        // Tạo các phần nhỏ và đặt vị trí tương ứng
+        for (var row = 0; row < rows; row++) {
+            for (var col = 0; col < cols; col++) {
+                var slice = new Image();
+                slice.src = `output/slice_${row}_${col}.jpg`; // Thay đổi định dạng nếu cần
+                slice.className = "imageSlice";
+                slice.style.width = partWidth + "px";
+                slice.style.height = partHeight + "px";
+                slice.style.clip = `rect(${row * partHeight}px, ${(col + 1) * partWidth}px, ${(row + 1) * partHeight}px, ${col * partWidth}px)`;
+
+                imageContainer.appendChild(slice);
+            }
+        }
+    }
+
+    // Gọi hàm với số hàng và số cột tương ứng với số phần đã cắt
+    reconstructImage(6, 12);
+</script>
+
+</body>
+</html>

@@ -4,8 +4,10 @@
     "dev": "nodemon --exec babel-node app/app.js"
   },
   "dependencies": {
+    "canvas": "^2.11.2",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
+    "path": "^0.12.7",
     "pg": "^8.11.3",
     "sharp": "^0.33.1"
   },
